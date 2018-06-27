@@ -7,12 +7,12 @@ var obj;
 var newData = [];
 
 const dataModule = require('./data');
-let data = dataModule.getData(); // val is "Hello"   
+let data = dataModule.getData();    
 
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+app.use(bodyParser.urlencoded({     
   extended: true
 })); 
 
@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/home.html');
 });
 
-app.get('/test', (req, res) => {
+app.get('/test', (req, res) => { //This route is only for testing purposes
     res.send(data);
 });
 
