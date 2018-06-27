@@ -1,0 +1,145 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<title>Meter Data</title>
+</head>
+
+<body>
+	
+		Meter Number:
+		<select id="dropDown">
+  			<option value="0115714">0115714</option>
+  			<option value="5173049">5173049</option>
+  			<option value="2380538">2380538</option>
+  			<option value="4878734">4878734</option>
+  			<option value="1111405">1111405</option>
+  			<option value="3458568">3458568</option>
+  			<option value="2490089">2490089</option>
+  			<option value="2490014">2490014</option>
+  			<option value="0818539">0818539</option>
+  			<option value="2381594">2381594</option>
+		</select> 
+		</br>
+		From:
+  		<input type="date" id="startDate" name="startDate" min="2018-03-27" max="2018-04-26"><br>
+  		To:
+  		<input type="date" id="endDate" name="endDate" min="2018-03-27" max="2018-04-26"><br>
+  		Atleast select meter id and startdate:
+  		<button>UPDATE</button> <- Select meter id and startdate then hit update
+  		<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div> 
+	 
+</body>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function(){
+var data_;
+function test() {
+  return $.getJSON('http://localhost:3000/test');
+}
+
+$.when(test()).then(function (data) {
+  data_ = data;
+  console.log(data_);
+});
+
+$('button').on("click", function(){
+    var meterID = $('#dropDown :selected').text();
+    var startDate = $('#startDate').val();
+    var endDate = $('#endDate').val();
+
+    var BaseLoad = [];
+    var TSL = [];
+    var WSL = [];
+    for(var i =0; i<data_.length;i++){
+        if(data_[i]["Meter_ID"] === meterID && data_[i]["Date"] == startDate){
+          if(data_[i]["Type"] === "BaseLoad"){
+                 for(var j = 1; j<=24;j++){
+                     BaseLoad.push(data_[i][j]);
+                 }  
+            }
+            if(data_[i]["Type"] === "WSL"){
+                 for(var j = 1; j<=24;j++){
+                     WSL.push(data_[i][j]);
+                 }  
+            }
+            if(data_[i]["Type"] === "TSL"){
+                 for(var j = 1; j<=24;j++){
+                     TSL.push(data_[i][j]);
+                 }  
+            }  
+        }
+    }
+    console.log(BaseLoad);
+    console.log(TSL);
+    console.log(WSL);
+    render(BaseLoad,TSL,WSL);
+});
+		
+});
+	
+
+	function render(BaseLoad, WSL, TSL){
+		Highcharts.chart('container', {
+		    chart: {
+		        type: 'spline'
+		    },
+		    title: {
+		        text: 'Meter Data'
+		    },
+		    subtitle: {
+		        text: ''
+		    },
+		    xAxis: {
+		        type: 'datetime',
+		        dateTimeLabelFormats: { // don't display the dummy year
+		            month: '%e. %b',
+		            year: '%b'
+		        },
+		        title: {
+		            text: 'Date'
+		        }
+		    },
+		    yAxis: {
+		        title: {
+		            text: 'Snow depth (m)'
+		        },
+		        min: 0
+		    },
+		    tooltip: {
+		        headerFormat: '<b>{series.name}</b><br>',
+		        pointFormat: '{point.x:%e. %b}: {point.y:.2f} m'
+		    },
+
+		    plotOptions: {
+		        spline: {
+		            marker: {
+		                enabled: true
+		            }
+		        }
+		    },
+
+		    colors: ['#6CF', '#39F', '#06C', '#036', '#000'],
+
+		    // Define the data points. All series have a dummy year
+		    // of 1970/71 in order to be compared on the same x axis. Note
+		    // that in JavaScript, months start at 0 for January, 1 for February etc.
+		    series: [{
+		        name: "BaseLoad",
+		        data: BaseLoad
+		    }, {
+		        name: "TSL",
+		        data: TSL
+		    }, {
+		        name: "WSL",
+		        data: WSL
+		    }]
+		});
+	}
+
+
+</script>
+</html> 
